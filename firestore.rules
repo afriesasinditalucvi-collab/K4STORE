@@ -1,0 +1,205 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // =========================================================================
+    // Global Hardened Primitives
+    // =========================================================================
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isBootstrappedAdmin() {
+      return isVerified() && request.auth.token.email == 'rizalfahriansyah03@gmail.com';
+    }
+
+    function isAdmin() {
+      return isVerified() && (
+        isBootstrappedAdmin() ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // =========================================================================
+    // Validation Blueprints (Verbatim synced with firebase-blueprint.json)
+    // =========================================================================
+    function isValidAdminRole(data) {
+      return data.keys().hasAll(['uid', 'roleName', 'createdAt']) &&
+        data.keys().hasOnly(['uid', 'roleName', 'createdAt']) &&
+        data.uid is string && data.uid.size() >= 1 && data.uid.size() <= 128 && data.uid.matches('^[a-zA-Z0-9_\\-]+$') &&
+        data.roleName is string && data.roleName.size() >= 5 && data.roleName.size() <= 32 &&
+        data.roleName in ['super_admin', 'store_manager', 'cashier'] &&
+        data.createdAt is timestamp;
+    }
+
+    function isValidProduct(data) {
+      return data.keys().hasAll([
+          'sku', 'name', 'category', 'price', 'costPrice', 'stock', 'minStock',
+          'unit', 'imageKey', 'supplier', 'visibility', 'updatedBy', 'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'sku', 'name', 'category', 'price', 'costPrice', 'stock', 'minStock',
+          'unit', 'imageKey', 'supplier', 'visibility', 'updatedBy', 'createdAt', 'updatedAt'
+        ]) &&
+        data.sku is string && data.sku.size() >= 3 && data.sku.size() <= 32 && data.sku.matches('^[A-Z0-9\\-]+$') &&
+        data.name is string && data.name.size() >= 2 && data.name.size() <= 120 &&
+        data.category is string && data.category.size() >= 3 && data.category.size() <= 32 &&
+        data.category in ['minuman', 'makanan_ringan', 'sembako', 'kopi_teh', 'kebutuhan_rumah', 'perawatan_diri'] &&
+        data.price is number && data.price >= 0 && data.price <= 1000000000 &&
+        data.costPrice is number && data.costPrice >= 0 && data.costPrice <= 1000000000 &&
+        data.stock is number && data.stock >= 0 && data.stock <= 1000000 &&
+        data.minStock is number && data.minStock >= 0 && data.minStock <= 100000 &&
+        data.unit is string && data.unit.size() >= 1 && data.unit.size() <= 20 &&
+        data.imageKey is string && data.imageKey.size() >= 1 && data.imageKey.size() <= 64 &&
+        data.supplier is string && data.supplier.size() >= 2 && data.supplier.size() <= 100 &&
+        data.visibility is string && data.visibility.size() >= 6 && data.visibility.size() <= 16 &&
+        data.visibility in ['public', 'archived'] &&
+        data.updatedBy is string && data.updatedBy.size() >= 1 && data.updatedBy.size() <= 128 &&
+        data.updatedBy.matches('^[a-zA-Z0-9_\\-]+$') &&
+        data.updatedBy == request.auth.uid &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidTransaction(data) {
+      return data.keys().hasAll([
+          'invoiceNumber', 'customerId', 'customerName', 'cashierName', 'orderType',
+          'itemsSummary', 'totalItems', 'subtotal', 'discountAmount', 'taxAmount',
+          'totalAmount', 'totalProfit', 'paymentMethod', 'paymentProvider',
+          'paymentReference', 'amountPaid', 'changeAmount', 'status', 'storeScope',
+          'createdAt', 'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'invoiceNumber', 'customerId', 'customerName', 'cashierName', 'orderType',
+          'itemsSummary', 'totalItems', 'subtotal', 'discountAmount', 'taxAmount',
+          'totalAmount', 'totalProfit', 'paymentMethod', 'paymentProvider',
+          'paymentReference', 'amountPaid', 'changeAmount', 'status', 'storeScope',
+          'createdAt', 'updatedAt'
+        ]) &&
+        data.invoiceNumber is string && data.invoiceNumber.size() >= 5 && data.invoiceNumber.size() <= 40 &&
+        data.invoiceNumber.matches('^[A-Z0-9\\-]+$') &&
+        data.customerId is string && data.customerId.size() >= 1 && data.customerId.size() <= 128 &&
+        data.customerId.matches('^[a-zA-Z0-9_\\-]+$') &&
+        data.customerId == request.auth.uid &&
+        data.customerName is string && data.customerName.size() >= 1 && data.customerName.size() <= 80 &&
+        data.cashierName is string && data.cashierName.size() >= 1 && data.cashierName.size() <= 80 &&
+        data.orderType is string && data.orderType.size() >= 10 && data.orderType.size() <= 24 &&
+        data.orderType in ['pos_cashier', 'customer_self_order'] &&
+        data.itemsSummary is string && data.itemsSummary.size() >= 2 && data.itemsSummary.size() <= 800 &&
+        data.totalItems is number && data.totalItems >= 1 && data.totalItems <= 10000 &&
+        data.subtotal is number && data.subtotal >= 0 && data.subtotal <= 1000000000 &&
+        data.discountAmount is number && data.discountAmount >= 0 && data.discountAmount <= 1000000000 &&
+        data.taxAmount is number && data.taxAmount >= 0 && data.taxAmount <= 1000000000 &&
+        data.totalAmount is number && data.totalAmount >= 0 && data.totalAmount <= 1000000000 &&
+        data.totalProfit is number && data.totalProfit >= 0 && data.totalProfit <= 1000000000 &&
+        data.paymentMethod is string && data.paymentMethod.size() >= 4 && data.paymentMethod.size() <= 16 &&
+        data.paymentMethod in ['qris', 'ewallet', 'va_bank', 'cash', 'card'] &&
+        data.paymentProvider is string && data.paymentProvider.size() >= 2 && data.paymentProvider.size() <= 50 &&
+        data.paymentReference is string && data.paymentReference.size() >= 3 && data.paymentReference.size() <= 80 &&
+        data.paymentReference.matches('^[A-Z0-9\\-]+$') &&
+        data.amountPaid is number && data.amountPaid >= 0 && data.amountPaid <= 1000000000 &&
+        data.changeAmount is number && data.changeAmount >= 0 && data.changeAmount <= 1000000000 &&
+        data.status is string && data.status.size() >= 7 && data.status.size() <= 16 &&
+        data.status in ['pending', 'completed', 'cancelled', 'refunded'] &&
+        data.storeScope is string && data.storeScope.size() >= 15 && data.storeScope.size() <= 16 &&
+        data.storeScope in ['K4 Store_global'] &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    // =========================================================================
+    // Collection Rules: /admins/{adminId}
+    // =========================================================================
+    match /admins/{adminId} {
+      allow get: if isVerified() && isValidId(adminId) && (request.auth.uid == adminId || isAdmin());
+      allow list: if isBootstrappedAdmin() && existing().uid == request.auth.uid;
+      allow create: if isVerified() && isValidId(adminId) && isValidAdminRole(incoming()) &&
+        incoming().uid == adminId &&
+        incoming().createdAt == request.time &&
+        isAdmin();
+      allow update: if isSignedIn() && isVerified() && isValidId(adminId) && isValidAdminRole(incoming()) && (
+        isAdmin() &&
+        incoming().uid == existing().uid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['roleName'])
+      );
+      allow delete: if isVerified() && isValidId(adminId) && isAdmin();
+    }
+
+    // =========================================================================
+    // Collection Rules: /products/{productId}
+    // =========================================================================
+    match /products/{productId} {
+      allow get: if isVerified() && isValidId(productId) && (existing().visibility == 'public' || isAdmin());
+      allow list: if isVerified() && existing().visibility == 'public';
+      allow create: if isVerified() && isValidId(productId) && isValidProduct(incoming()) &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time &&
+        isAdmin();
+      allow update: if isSignedIn() && isVerified() && isValidId(productId) && isValidProduct(incoming()) &&
+        incoming().sku == existing().sku &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time && (
+          // Action 1: Admin Full Inventory & Catalog Management
+          (isAdmin() && incoming().diff(existing()).affectedKeys().hasOnly([
+            'name', 'category', 'price', 'costPrice', 'stock', 'minStock',
+            'unit', 'imageKey', 'supplier', 'visibility', 'updatedBy', 'updatedAt'
+          ])) ||
+          // Action 2: Verified Customer / Cashier Stock Deduction on Checkout
+          (incoming().stock < existing().stock &&
+            incoming().diff(existing()).affectedKeys().hasOnly(['stock', 'updatedBy', 'updatedAt']))
+        );
+      allow delete: if isVerified() && isValidId(productId) && isAdmin();
+    }
+
+    // =========================================================================
+    // Collection Rules: /transactions/{transactionId}
+    // =========================================================================
+    match /transactions/{transactionId} {
+      allow get: if isVerified() && isValidId(transactionId) && (existing().customerId == request.auth.uid || isAdmin());
+      allow list: if isVerified() && (
+        existing().customerId == request.auth.uid ||
+        (isBootstrappedAdmin() && existing().storeScope == 'K4 Store_global')
+      );
+      allow create: if isVerified() && isValidId(transactionId) && isValidTransaction(incoming()) &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+      allow update: if isSignedIn() && isVerified() && isValidId(transactionId) && isValidTransaction(incoming()) &&
+        incoming().invoiceNumber == existing().invoiceNumber &&
+        incoming().customerId == existing().customerId &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time && (
+          // Action 1: Admin Status Override
+          (isAdmin() && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])) ||
+          // Action 2: Customer Pending-to-Terminal Transition (Terminal State Locked once completed/cancelled/refunded)
+          (existing().customerId == request.auth.uid &&
+            existing().status == 'pending' &&
+            incoming().status in ['completed', 'cancelled'] &&
+            incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']))
+        );
+      allow delete: if isVerified() && isValidId(transactionId) && isAdmin();
+    }
+  }
+}

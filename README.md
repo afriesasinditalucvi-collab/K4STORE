@@ -1,2 +1,20 @@
-aplikasi ritel dan quick-commerce modern berbasis web dan mobile yang dirancang untuk menjembatani kebutuhan belanja harian masyarakat dengan toko ritel dan warung lokal secara real-time.
-Dengan memadukan antarmuka belanja pelanggan yang intuitif, sistem kasir/manajemen toko terpadu (Store Admin CMS)
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+</div>
+
+# Run and deploy your AI Studio app
+
+This contains everything you need to run your app locally.
+
+View your app in AI Studio: https://ai.studio/apps/97b91b4c-65a9-47d3-b12e-c7a2245a1851
+
+## Run Locally
+
+**Prerequisites:**  Node.js
+
+
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`

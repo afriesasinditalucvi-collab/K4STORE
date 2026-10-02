@@ -1,0 +1,291 @@
+{
+  "entities": {
+    "AdminRole": {
+      "title": "AdminRole",
+      "description": "Represents an authorized store administrator or head cashier record.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth UID of the administrator.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "roleName": {
+          "type": "string",
+          "description": "Assigned administrative role.",
+          "enum": ["super_admin", "store_manager", "cashier"],
+          "minLength": 5,
+          "maxLength": 32
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when admin role was provisioned."
+        }
+      },
+      "required": ["uid", "roleName", "createdAt"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Represents a retail product item in the minimarket inventory and catalog.",
+      "type": "object",
+      "properties": {
+        "sku": {
+          "type": "string",
+          "description": "Unique product barcode or SKU code.",
+          "minLength": 3,
+          "maxLength": 32,
+          "pattern": "^[A-Z0-9\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name of the product.",
+          "minLength": 2,
+          "maxLength": 120
+        },
+        "category": {
+          "type": "string",
+          "description": "Product category identifier.",
+          "enum": ["minuman", "makanan_ringan", "sembako", "kopi_teh", "kebutuhan_rumah", "perawatan_diri"],
+          "minLength": 3,
+          "maxLength": 32
+        },
+        "price": {
+          "type": "number",
+          "description": "Selling price in IDR."
+        },
+        "costPrice": {
+          "type": "number",
+          "description": "Cost of goods sold (HPP) in IDR."
+        },
+        "stock": {
+          "type": "number",
+          "description": "Current available inventory quantity."
+        },
+        "minStock": {
+          "type": "number",
+          "description": "Low-stock alert threshold quantity."
+        },
+        "unit": {
+          "type": "string",
+          "description": "Unit of measurement (pcs, botol, bungkus, pouch, liter).",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "imageKey": {
+          "type": "string",
+          "description": "Visual asset key for product thumbnail.",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "supplier": {
+          "type": "string",
+          "description": "Supplier or distributor company name.",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "visibility": {
+          "type": "string",
+          "description": "Catalog visibility status.",
+          "enum": ["public", "archived"],
+          "minLength": 6,
+          "maxLength": 16
+        },
+        "updatedBy": {
+          "type": "string",
+          "description": "UID of the user who last modified the product or deducted stock.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation server timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update server timestamp."
+        }
+      },
+      "required": [
+        "sku",
+        "name",
+        "category",
+        "price",
+        "costPrice",
+        "stock",
+        "minStock",
+        "unit",
+        "imageKey",
+        "supplier",
+        "visibility",
+        "updatedBy",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Represents a completed or pending POS or customer self-checkout transaction.",
+      "type": "object",
+      "properties": {
+        "invoiceNumber": {
+          "type": "string",
+          "description": "Formatted invoice code (e.g., INV-20261001-001).",
+          "minLength": 5,
+          "maxLength": 40,
+          "pattern": "^[A-Z0-9\\-]+$"
+        },
+        "customerId": {
+          "type": "string",
+          "description": "UID of the authenticated user who created the transaction.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "customerName": {
+          "type": "string",
+          "description": "Display label of the customer or guest.",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "cashierName": {
+          "type": "string",
+          "description": "Name of cashier or Self-Checkout kiosk identifier.",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "orderType": {
+          "type": "string",
+          "description": "Channel where the transaction originated.",
+          "enum": ["pos_cashier", "customer_self_order"],
+          "minLength": 10,
+          "maxLength": 24
+        },
+        "itemsSummary": {
+          "type": "string",
+          "description": "Human-readable line item summary for receipts and reports.",
+          "minLength": 2,
+          "maxLength": 800
+        },
+        "totalItems": {
+          "type": "number",
+          "description": "Total quantity of items in this transaction."
+        },
+        "subtotal": {
+          "type": "number",
+          "description": "Subtotal before discount and tax in IDR."
+        },
+        "discountAmount": {
+          "type": "number",
+          "description": "Total promotional discount applied in IDR."
+        },
+        "taxAmount": {
+          "type": "number",
+          "description": "Total tax (PPN) applied in IDR."
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "Final payable amount in IDR."
+        },
+        "totalProfit": {
+          "type": "number",
+          "description": "Calculated gross profit in IDR."
+        },
+        "paymentMethod": {
+          "type": "string",
+          "description": "Selected payment method category.",
+          "enum": ["qris", "ewallet", "va_bank", "cash", "card"],
+          "minLength": 4,
+          "maxLength": 16
+        },
+        "paymentProvider": {
+          "type": "string",
+          "description": "Specific payment provider (QRIS, GoPay, OVO, BCA VA, Tunai, etc.).",
+          "minLength": 2,
+          "maxLength": 50
+        },
+        "paymentReference": {
+          "type": "string",
+          "description": "Digital payment approval or reference code.",
+          "minLength": 3,
+          "maxLength": 80,
+          "pattern": "^[A-Z0-9\\-]+$"
+        },
+        "amountPaid": {
+          "type": "number",
+          "description": "Total amount tendered by customer in IDR."
+        },
+        "changeAmount": {
+          "type": "number",
+          "description": "Change returned to customer in IDR."
+        },
+        "status": {
+          "type": "string",
+          "description": "Lifecycle status of the transaction.",
+          "enum": ["pending", "completed", "cancelled", "refunded"],
+          "minLength": 7,
+          "maxLength": 16
+        },
+        "storeScope": {
+          "type": "string",
+          "description": "Partition identifier for secure store-wide reporting queries.",
+          "enum": ["K4 Store_global"],
+          "minLength": 15,
+          "maxLength": 16
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation server timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update server timestamp."
+        }
+      },
+      "required": [
+        "invoiceNumber",
+        "customerId",
+        "customerName",
+        "cashierName",
+        "orderType",
+        "itemsSummary",
+        "totalItems",
+        "subtotal",
+        "discountAmount",
+        "taxAmount",
+        "totalAmount",
+        "totalProfit",
+        "paymentMethod",
+        "paymentProvider",
+        "paymentReference",
+        "amountPaid",
+        "changeAmount",
+        "status",
+        "storeScope",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/admins/{adminId}": {
+      "schema": { "$ref": "#/entities/AdminRole" },
+      "description": "Authorized store administrators and cashiers."
+    },
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Minimarket product inventory and pricing catalog."
+    },
+    "/transactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/Transaction" },
+      "description": "POS and customer self-order sales transactions."
+    }
+  }
+}

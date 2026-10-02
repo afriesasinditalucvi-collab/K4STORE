@@ -1,0 +1,6 @@
+{
+  "name": "NusaMart POS & Minimarket",
+  "description": "Sistem manajemen minimarket modern dengan kasir (POS), inventaris real-time, analitik penjualan, pembayaran digital, dan portal belanja pelanggan.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
