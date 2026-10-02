@@ -1,17 +1,8 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/4a421014-cd9e-4196-ab48-5d47ceededa6" /><div align="center">
+<img width="1200" height="475" alt="GHBanner" src="<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/e17b19cc-9d20-445e-8e19-63e90f9f5d16" />
+" />
 </div>
-
-# Run and deploy your AI Studio app
-
-This contains everything you need to run your app locally.
-
-View your app in AI Studio: https://ai.studio/apps/97b91b4c-65a9-47d3-b12e-c7a2245a1851
-
-## Run Locally
-
-**Prerequisites:**  Node.js
-
+K4 Store merupakan sebuah toko minimarket yang menyediakan berbagai kebutuhan sehari-hari bagi masyarakat. Toko ini memiliki tampilan yang bersih, rapi, dan menarik dengan warna merah, biru, serta kuning sebagai identitas tokonya. Di dalam toko tersedia berbagai produk seperti makanan, minuman, sembako, perlengkapan rumah tangga, dan kebutuhan pribadi. Penataan barang dilakukan secara teratur pada rak-rak sehingga pelanggan dapat menemukan barang yang dibutuhkan dengan mudah. K4 Store juga menyediakan area kasir untuk memudahkan proses pembayaran pelanggan. Dengan konsep yang praktis dan lengkap, K4 Store menjadi tempat yang nyaman untuk memenuhi kebutuhan sehari-hari.
 
 1. Install dependencies:
    `npm install`
